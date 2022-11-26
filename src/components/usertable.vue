@@ -24,6 +24,23 @@
   const resultList = await pb.collection('users').getList(1, 50, {sort: temp});
   const sampleData3 = await resultList.items
   
+
+  async function test(sort){
+    var query = ""
+    console.log("test()")
+    if (sort == "asc") {
+      console.log("1")
+      var query = "+created"
+    } 
+    else {
+      console.log("2")
+      var query = "-created"
+    }
+    console.log(query)
+    const resultList2 = await pb.collection('users').getList(1, 50, {sort: query});
+    return resultList2.items
+  };
+
   export default defineComponent({
     name: "App",
     components: { TableLite },
@@ -83,7 +100,7 @@
           if (offset >= 10 || limit >= 20) {
             limit = 20;
           }
-          table.rows = sampleData3;
+          table.rows = test(sort);
           // if (sort == "asc") {
           //   table.rows = sampleData1(offset, limit);
           // } 
