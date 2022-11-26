@@ -14,33 +14,15 @@
   <script>
   import { defineComponent, reactive } from "vue";
   import TableLite from "../../node_modules/vue3-table-lite/src/components/TableLite.vue";
-  
-  // Fake Data for 'asc' sortable
-  const sampleData1 = (offst, limit) => {
-    offst = offst + 1;
-    let data = [];
-    for (let i = offst; i <= limit; i++) {
-      data.push({
-        id: i,
-        name: "TEST" + i,
-        email: "test" + i + "@example.com",
-      });
-    }
-    return data;
-  };
-  
-  // Fake Data for 'desc' sortable
-  const sampleData2 = (offst, limit) => {
-    let data = [];
-    for (let i = limit; i > offst; i--) {
-      data.push({
-        id: i,
-        name: "TEST" + i,
-        email: "test" + i + "@example.com",
-      });
-    }
-    return data;
-  };
+
+  import PocketBase from 'pocketbase';
+
+  const pb = new PocketBase('http://127.0.0.1:8090');
+
+
+  const temp = '+created'
+  const resultList = await pb.collection('users').getList(1, 50, {sort: temp});
+  const sampleData3 = await resultList.items
   
   export default defineComponent({
     name: "App",
@@ -51,8 +33,8 @@
         isLoading: false,
         columns: [
           {
-            label: "ID",
-            field: "id",
+            label: "Created",
+            field: "created",
             width: "3%",
             sortable: true,
             isKey: true,
@@ -101,11 +83,13 @@
           if (offset >= 10 || limit >= 20) {
             limit = 20;
           }
-          if (sort == "asc") {
-            table.rows = sampleData1(offset, limit);
-          } else {
-            table.rows = sampleData2(offset, limit);
-          }
+          table.rows = sampleData3;
+          // if (sort == "asc") {
+          //   table.rows = sampleData1(offset, limit);
+          // } 
+          // else {
+          //   table.rows = sampleData1(offset, limit);
+          // }
           table.totalRecordCount = 20;
           table.sortable.order = order;
           table.sortable.sort = sort;
@@ -125,7 +109,7 @@
 
 <style scoped>
 ::v-deep(.vtl-table .vtl-thead .vtl-thead-th) {
-  color: black !important;
+  color: black;
   background-color: var(--primary);
   border: none;
 }
@@ -152,7 +136,32 @@
 ::v-deep(.vtl-card-body) {
   background-color: var(--primary);
 }
-::v-deep(.vtl-paging-info, .vtl-paging-change-div) {
+::v-deep(.vtl-paging-info) {
   color: var(--black);
+}
+::v-deep(.vtl-paging-count-label) {
+  color: var(--black);
+}
+::v-deep(.vtl-paging-page-label) {
+  color: var(--black);
+  margin-left: 1rem;
+}
+::v-deep(.quick-btn) {
+  background-color: var(--primary);
+  color: black;
+  padding: 0.25rem;
+  font-weight: bold;
+}
+::v-deep(.page-link) {
+ background-color: var(--primary);
+ color: black;
+ padding-top: 0px;
+ padding-bottom: 1.20rem;
+}
+::v-deep(.page-item.disabled .page-link){
+  background-color: var(--primary);
+  color: black;
+  padding-top: 0px;
+  padding-bottom: 1.20rem;
 }
 </style>
