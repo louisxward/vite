@@ -1,15 +1,18 @@
 <template>
-    <table-lite
-      :is-loading="table.isLoading"
-      :columns="table.columns"
-      :rows="table.rows"
-      :total="table.totalRecordCount"
-      :sortable="table.sortable"
-      :messages="table.messages"
-      @do-search="doSearch"
-      @is-finished="table.isLoading = false"
-    ></table-lite>
-  </template>
+      <div>
+        <table-lite
+          :is-loading="table.isLoading"
+          :columns="table.columns"
+          :rows="table.rows"
+          :total="table.totalRecordCount"
+          :sortable="table.sortable"
+          :messages="table.messages"
+          @do-search="doSearch"
+          @is-finished="table.isLoading = false"
+        ></table-lite>
+        <button style="color:red;" @click="doDefaultSearch">Refresh</button>
+  </div>
+</template>
   
   <script>
   import { defineComponent, reactive } from "vue";
@@ -18,28 +21,6 @@
   import PocketBase from 'pocketbase';
 
   const pb = new PocketBase('http://127.0.0.1:8090');
-
-
-  const temp = '+created'
-  const resultList = await pb.collection('users').getList(1, 50, {sort: temp});
-  const sampleData3 = await resultList.items
-  
-
-  async function test(sort){
-    var query = ""
-    console.log("test()")
-    if (sort == "asc") {
-      console.log("1")
-      var query = "+created"
-    } 
-    else {
-      console.log("2")
-      var query = "-created"
-    }
-    console.log(query)
-    const resultList2 = await pb.collection('users').getList(1, 50, {sort: query});
-    return resultList2.items
-  };
 
   export default defineComponent({
     name: "App",
@@ -54,7 +35,6 @@
             field: "created",
             width: "3%",
             sortable: true,
-            isKey: true,
           },
           {
             label: "Name",
@@ -94,31 +74,46 @@
        * Search Event
        */
       const doSearch = (offset, limit, order, sort) => {
+        console.log(offset + " " + limit + " " + order + " " + sort)
+        const sort2 = sortFlipper(sort) + order
         table.isLoading = true;
-        setTimeout(() => {
+        setTimeout(async () => {
           table.isReSearch = offset == undefined ? true : false;
           if (offset >= 10 || limit >= 20) {
             limit = 20;
           }
-          table.rows = test(sort);
-          // if (sort == "asc") {
-          //   table.rows = sampleData1(offset, limit);
-          // } 
-          // else {
-          //   table.rows = sampleData1(offset, limit);
-          // }
-          table.totalRecordCount = 20;
+          const resultList = await pb.collection('users').getList(1, limit, {sort: sort2});
+          table.rows = resultList.items
+          table.totalRecordCount = resultList.totalItems;
           table.sortable.order = order;
           table.sortable.sort = sort;
         }, 600);
       };
-  
+
+      function sortFlipper(sort){
+        if (sort == "asc"){
+          return "+"
+        }
+        else if (sort == "desc"){
+          return "-"
+        }
+        return ""
+      }
+
+
       // First get data
-      doSearch(0, 10, 'id', 'asc');
-  
+
+      function doDefaultSearch (){
+        console.log("doDefaultSearch()")
+        doSearch(0, 10, 'name', 'asc');
+      }
+
+      doDefaultSearch();
+
       return {
         table,
         doSearch,
+        doDefaultSearch,
       };
     },
   });
@@ -179,6 +174,10 @@
   background-color: var(--primary);
   color: black;
   padding-top: 0px;
+  padding-bottom: 1.20rem;
+}
+::v-deep(.vtl-empty-msg ){
+  color: black;
   padding-bottom: 1.20rem;
 }
 </style>
