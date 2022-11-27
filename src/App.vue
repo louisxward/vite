@@ -8,6 +8,7 @@
 <script setup>
 	import Sidebar from './components/sidebar.vue'
 
+
 </script>
 
 <style lang="scss">
