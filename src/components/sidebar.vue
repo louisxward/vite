@@ -18,7 +18,7 @@
             <span class="material-icons">list</span>
             <span class="text">About</span>
         </router-link>
-        <router-link class="button" to="/team">
+        <router-link class="button" to="/userList">
             <span class="material-icons">group</span>
             <span class="text">Team</span>
         </router-link>

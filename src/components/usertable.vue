@@ -8,15 +8,17 @@
           :sortable="table.sortable"
           :messages="table.messages"
           @do-search="doSearch"
-          @is-finished="table.isLoading = false"
+          @is-finished="tableLoadingFinish"
         ></table-lite>
-        <button style="color:red;" @click="doDefaultSearch">Refresh</button>
+        <!-- <button style="color:red;" @click="doDefaultSearch">Refresh</button> -->
   </div>
 </template>
   
   <script>
   import { defineComponent, reactive } from "vue";
   import TableLite from "../../node_modules/vue3-table-lite/src/components/TableLite.vue";
+
+  import router from "../router"; 
 
   import PocketBase from 'pocketbase';
 
@@ -25,6 +27,7 @@
   export default defineComponent({
     name: "App",
     components: { TableLite },
+    
     setup() {
       // Table config
       const table = reactive({
@@ -54,10 +57,10 @@
             width: "10%",
             display: function (row) {
               return (
-                '<button type="button" data-id="' +
-                row.id +
-                '" class="is-rows-el quick-btn">Button</button>'
-              );
+              '<button type="button" data-id="' +
+              row.id +
+              '" class="is-rows-el view-btn">View</button>'
+            );
             },
           },
           
@@ -65,17 +68,20 @@
         rows: [],
         totalRecordCount: 0,
         sortable: {
-          order: "id",
-          sort: "asc",
+          order: "created",
+          sort: "desc",
         },
       });
-  
+
+
+      
+
       /**
        * Search Event
        */
       const doSearch = (offset, limit, order, sort) => {
-        console.log(offset + " " + limit + " " + order + " " + sort)
         const sort2 = sortFlipper(sort) + order
+        console.log(offset + " " + limit + " " + order + " " + sort2)
         table.isLoading = true;
         setTimeout(async () => {
           table.isReSearch = offset == undefined ? true : false;
@@ -90,6 +96,21 @@
         }, 600);
       };
 
+      const tableLoadingFinish = (elements) => {
+        table.isLoading = false;
+        Array.prototype.forEach.call(elements, function (element) {
+          if (element.classList.contains("view-btn")) {
+            element.addEventListener("click", function (event) {
+              event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
+              const id = this.dataset.id
+              router.push("/user/"+id)
+            });
+
+          }
+
+        });
+      };
+
       function sortFlipper(sort){
         if (sort == "asc"){
           return "+"
@@ -102,10 +123,8 @@
 
 
       // First get data
-
       function doDefaultSearch (){
-        console.log("doDefaultSearch()")
-        doSearch(0, 10, 'name', 'asc');
+        doSearch(0, 10, 'created', 'desc');
       }
 
       doDefaultSearch();
@@ -114,6 +133,7 @@
         table,
         doSearch,
         doDefaultSearch,
+        tableLoadingFinish,
       };
     },
   });
@@ -158,10 +178,10 @@
   color: var(--black);
   margin-left: 1rem;
 }
-::v-deep(.quick-btn) {
+::v-deep(.view-btn) {
   background-color: var(--primary);
   color: black;
-  padding: 0.25rem;
+  padding: 0.5rem 1rem;
   font-weight: bold;
 }
 ::v-deep(.page-link) {

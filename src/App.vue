@@ -37,6 +37,10 @@ button {
 	border: none;
 	outline: none;
 	background: none;
+	color: var(--primary);
+}
+.warning{
+	color:red;
 }
 .app {
 	display: flex;

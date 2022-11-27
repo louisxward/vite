@@ -1,9 +1,9 @@
 <template>
-    <main class="team-page">
-        <pageheader header="Team"></pageheader>
+    <main class="userList-page">
+        <pageheader header="User List"></pageheader>
         <usertable ref="usertableRef"/>
         <!-- <actionbuttons/> -->
-        <userform @created="refreshTable"/>
+        <!-- <userform @created="refreshTable"/> -->
     </main>
 </template>
 
