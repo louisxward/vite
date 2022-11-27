@@ -1,5 +1,6 @@
 <template>
-      <div>
+  <div>
+    <div class="tableContainer">
         <table-lite
           :is-loading="table.isLoading"
           :columns="table.columns"
@@ -10,7 +11,11 @@
           @do-search="doSearch"
           @is-finished="tableLoadingFinish"
         ></table-lite>
-        <!-- <button style="color:red;" @click="doDefaultSearch">Refresh</button> -->
+    </div>
+    <div class="buttonContainer">
+      <button class="actionBtn view-btn" @click="createUser">Create User</button>
+      <button class="actionBtn" @click="doDefaultSearch">Refresh</button>
+    </div>
   </div>
 </template>
   
@@ -59,10 +64,14 @@
               return (
               '<button type="button" data-id="' +
               row.id +
-              '" class="is-rows-el view-btn">View</button>'
+              '" class="is-rows-el view-btn actionBtn">View</button>'
+              + '<button type="button" data-id="' +
+              row.id +
+              '" class="is-rows-el actionBtn delete-btn">Delete</button>'
             );
             },
           },
+          
           
         ],
         rows: [],
@@ -85,10 +94,8 @@
         table.isLoading = true;
         setTimeout(async () => {
           table.isReSearch = offset == undefined ? true : false;
-          if (offset >= 10 || limit >= 20) {
-            limit = 20;
-          }
-          const resultList = await pb.collection('users').getList(1, limit, {sort: sort2});
+          console.log(offset + " " + limit + " " + order + " " + sort2)
+          const resultList = await pb.collection('users').getList(offset, limit, {sort: sort2});
           table.rows = resultList.items
           table.totalRecordCount = resultList.totalItems;
           table.sortable.order = order;
@@ -105,11 +112,26 @@
               const id = this.dataset.id
               router.push("/user/"+id)
             });
-
           }
-
+          if (element.classList.contains("delete-btn")) {
+            element.addEventListener("click", function (event) {
+              event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
+              const id = this.dataset.id
+              deleteUser(id)
+              doDefaultSearch()
+            });
+          }
         });
       };
+
+
+      async function deleteUser(id){
+        await pb.collection('users').delete(id);
+      }
+
+      function createUser(){
+        router.push("/user/0")
+      }
 
       function sortFlipper(sort){
         if (sort == "asc"){
@@ -134,6 +156,7 @@
         doSearch,
         doDefaultSearch,
         tableLoadingFinish,
+        createUser,
       };
     },
   });
@@ -178,12 +201,30 @@
   color: var(--black);
   margin-left: 1rem;
 }
-::v-deep(.view-btn) {
+
+
+::v-deep(.actionBtn) {
   background-color: var(--primary);
   color: black;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   font-weight: bold;
 }
+::v-deep(.actionBtn:hover) {
+  background-color: var(--black);
+  color: var(--white);
+}
+.actionBtn {
+  background-color: var(--primary);
+  color: black;
+  padding: 0.75rem 1rem;
+  font-weight: bold;
+}
+.actionBtn:hover {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+
 ::v-deep(.page-link) {
  background-color: var(--primary);
  color: black;
