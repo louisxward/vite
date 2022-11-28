@@ -30,7 +30,7 @@
   const users = ref({});
   
   const table = reactive({
-    isLoading: false,
+    isLoading: true,
     columns: [
       {
         label: "Created",
@@ -75,6 +75,7 @@
   });
 
   const getUserList = async (offset, limit, order, sort) => {
+    table.isLoading = true;
     const sort2 = sortFlipper(sort) + order
     console.log(offset + " " + limit + " " +  sort2)
     try {
@@ -139,7 +140,6 @@
     }
     return ""
   }
-
 
   onMounted(() => {
     getUserList(0, 10, 'created', 'desc');
