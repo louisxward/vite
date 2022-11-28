@@ -81,7 +81,6 @@
     try {
         const result = await $pb.collection('users').getList(offset, limit, {sort: sort2});
         if (result) {
-            console.log(result)
             table.isReSearch = offset == undefined ? true : false;
             table.rows = result.items
             table.totalRecordCount = result.totalItems;
@@ -100,7 +99,6 @@
     Array.prototype.forEach.call(elements, function (element) {
       if (element.classList.contains("view-btn")) {
         element.addEventListener("click", function (event) {
-          console.log("view")
           event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
           const id = this.dataset.id
           router.push("/user/"+id)
@@ -108,7 +106,6 @@
       }
       if (element.classList.contains("delete-btn")) {
         element.addEventListener("click", function (event) {
-          console.log("delete")
           event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
           const id = this.dataset.id
           deleteUser(id);
@@ -119,6 +116,7 @@
 
 
   const deleteUser = async (id) => {
+    console.log("deleteUser()")
     try {
       await $pb.collection('users').delete(id);
       getUserList(0, 10, 'created', 'desc')
@@ -129,6 +127,7 @@
   }
 
   function createUser(){
+    console.log("createUser()")
     router.push("/user/0")
   }
 
@@ -187,30 +186,6 @@
   color: var(--black);
   margin-left: 1rem;
 }
-
-
-::v-deep(.actionBtn) {
-  background-color: var(--primary);
-  color: black;
-  padding: 0.75rem 1rem;
-  font-weight: bold;
-}
-::v-deep(.actionBtn:hover) {
-  background-color: var(--black);
-  color: var(--white);
-}
-.actionBtn {
-  background-color: var(--primary);
-  color: black;
-  padding: 0.75rem 1rem;
-  font-weight: bold;
-}
-.actionBtn:hover {
-  background-color: var(--black);
-  color: var(--white);
-}
-
-
 ::v-deep(.page-link) {
  background-color: var(--primary);
  color: black;
