@@ -1,5 +1,6 @@
 <template>
     <div v-if="userFound">
+        <div>id: {{userId}}</div>
         <form @submit.prevent="submitUser">
             <label class="block">
                 <span>Name: </span>
@@ -44,8 +45,8 @@ const emit = defineEmits(["userUpdated"]);
 const loading = ref(true)
 const userFound = ref(false)
 
-var name = ref("");
-var email = ref("");
+const name = ref("");
+const email = ref("");
 
 
 const init = async () => {
@@ -69,8 +70,8 @@ const loadUser = async () => {
         const response = await $pb.collection('users').getOne(userId.value, {});
         if(response){
             console.log(userId.value + " userId found")
-            name = response.name;
-            email = response.email
+            name.value = response.name;
+            email.value = response.email
             loading.value = false
             userFound.value = true
         }
@@ -88,7 +89,7 @@ async function submitUser(){
     }
     if(userId.value != 0){
         console.log("update")
-        await $pb.collection('users').update(userId, submitUser);
+        await $pb.collection('users').update(userId.value, submitUser);
     }
     else{
         console.log("create")
