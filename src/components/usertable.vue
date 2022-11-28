@@ -8,159 +8,144 @@
           :total="table.totalRecordCount"
           :sortable="table.sortable"
           :messages="table.messages"
-          @do-search="doSearch"
+          @do-search="getUserList"
           @is-finished="tableLoadingFinish"
         ></table-lite>
     </div>
     <div class="buttonContainer">
       <button class="actionBtn view-btn" @click="createUser">Create User</button>
-      <button class="actionBtn" @click="doDefaultSearch">Refresh</button>
+      <button class="actionBtn" @click="getUserList(0, 10, 'created', 'desc');">Refresh</button>
     </div>
   </div>
 </template>
   
-  <script>
-  import { defineComponent, reactive } from "vue";
+<script setup>
   import TableLite from "../../node_modules/vue3-table-lite/src/components/TableLite.vue";
+  import { pocketBaseSymbol } from '../symbols/injectionSymbols';
+  import { inject, onMounted, ref, reactive } from 'vue';
+  import { useRouter } from 'vue-router';
 
-  import router from "../router"; 
-
-  import PocketBase from 'pocketbase';
-
-  const pb = new PocketBase('http://127.0.0.1:8090');
-
-  export default defineComponent({
-    name: "App",
-    components: { TableLite },
-    
-    setup() {
-      // Table config
-      const table = reactive({
-        isLoading: false,
-        columns: [
-          {
-            label: "Created",
-            field: "created",
-            width: "3%",
-            sortable: true,
-          },
-          {
-            label: "Name",
-            field: "name",
-            width: "10%",
-            sortable: true,
-          },
-          {
-            label: "Email",
-            field: "email",
-            width: "15%",
-            sortable: true,
-          },
-          {
-            label: "Actions",
-            field: "Update",
-            width: "10%",
-            display: function (row) {
-              return (
-              '<button type="button" data-id="' +
-              row.id +
-              '" class="is-rows-el view-btn actionBtn">View</button>'
-              + '<button type="button" data-id="' +
-              row.id +
-              '" class="is-rows-el actionBtn delete-btn">Delete</button>'
-            );
-            },
-          },
-          
-          
-        ],
-        rows: [],
-        totalRecordCount: 0,
-        sortable: {
-          order: "created",
-          sort: "desc",
+  const router = useRouter();
+  const $pb = inject(pocketBaseSymbol);
+  const users = ref({});
+  
+  const table = reactive({
+    isLoading: true,
+    columns: [
+      {
+        label: "Created",
+        field: "created",
+        width: "3%",
+        sortable: true,
+      },
+      {
+        label: "Name",
+        field: "name",
+        width: "10%",
+        sortable: true,
+      },
+      {
+        label: "Email",
+        field: "email",
+        width: "15%",
+        sortable: true,
+      },
+      {
+        label: "Actions",
+        field: "Update",
+        width: "10%",
+        display: function (row) {
+          return (
+          '<button type="button" data-id="' +
+          row.id +
+          '" class="is-rows-el view-btn actionBtn">View</button>'
+          + '<button type="button" data-id="' +
+          row.id +
+          '" class="is-rows-el actionBtn delete-btn">Delete</button>'
+        );
         },
-      });
-
-
-      
-
-      /**
-       * Search Event
-       */
-      const doSearch = (offset, limit, order, sort) => {
-        const sort2 = sortFlipper(sort) + order
-        console.log(offset + " " + limit + " " + order + " " + sort2)
-        table.isLoading = true;
-        setTimeout(async () => {
-          table.isReSearch = offset == undefined ? true : false;
-          console.log(offset + " " + limit + " " + order + " " + sort2)
-          const resultList = await pb.collection('users').getList(offset, limit, {sort: sort2});
-          table.rows = resultList.items
-          table.totalRecordCount = resultList.totalItems;
-          table.sortable.order = order;
-          table.sortable.sort = sort;
-        }, 600);
-      };
-
-      const tableLoadingFinish = (elements) => {
-        table.isLoading = false;
-        Array.prototype.forEach.call(elements, function (element) {
-          if (element.classList.contains("view-btn")) {
-            element.addEventListener("click", function (event) {
-              event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
-              const id = this.dataset.id
-              router.push("/user/"+id)
-            });
-          }
-          if (element.classList.contains("delete-btn")) {
-            element.addEventListener("click", function (event) {
-              event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
-              const id = this.dataset.id
-              deleteUser(id)
-              doDefaultSearch()
-            });
-          }
-        });
-      };
-
-
-      async function deleteUser(id){
-        await pb.collection('users').delete(id);
-      }
-
-      function createUser(){
-        router.push("/user/0")
-      }
-
-      function sortFlipper(sort){
-        if (sort == "asc"){
-          return "+"
-        }
-        else if (sort == "desc"){
-          return "-"
-        }
-        return ""
-      }
-
-
-      // First get data
-      function doDefaultSearch (){
-        doSearch(0, 10, 'created', 'desc');
-      }
-
-      doDefaultSearch();
-
-      return {
-        table,
-        doSearch,
-        doDefaultSearch,
-        tableLoadingFinish,
-        createUser,
-      };
+      },
+    ],
+    rows: [],
+    totalRecordCount: 0,
+    sortable: {
+      order: "created",
+      sort: "desc",
     },
   });
-  </script>
+
+  const getUserList = async (offset, limit, order, sort) => {
+    table.isLoading = true;
+    const sort2 = sortFlipper(sort) + order
+    console.log(offset + " " + limit + " " +  sort2)
+    try {
+        const result = await $pb.collection('users').getList(offset, limit, {sort: sort2});
+        if (result) {
+            table.isReSearch = offset == undefined ? true : false;
+            table.rows = result.items
+            table.totalRecordCount = result.totalItems;
+            table.sortable.order = order;
+            table.sortable.sort = sort;
+        }
+
+    } catch (error) {
+        console.log("error");
+    }
+  }
+
+
+  const tableLoadingFinish = (elements) => {
+    table.isLoading = false;
+    Array.prototype.forEach.call(elements, function (element) {
+      if (element.classList.contains("view-btn")) {
+        element.addEventListener("click", function (event) {
+          console.log("view")
+          event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
+          const id = this.dataset.id
+          router.push("/user/"+id)
+        });
+      }
+      if (element.classList.contains("delete-btn")) {
+        element.addEventListener("click", function (event) {
+          console.log("delete")
+          event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
+          const id = this.dataset.id
+          deleteUser(id);
+        });
+      }
+    });
+  };
+
+
+  const deleteUser = async (id) => {
+    try {
+      await $pb.collection('users').delete(id);
+      getUserList(0, 10, 'created', 'desc')
+    }
+    catch(error){
+      console.log("error");
+    }
+  }
+
+  function createUser(){
+    router.push("/user/0")
+  }
+
+  function sortFlipper(sort){
+    if (sort == "asc"){
+      return "+"
+    }
+    else if (sort == "desc"){
+      return "-"
+    }
+    return ""
+  }
+
+  onMounted(() => {
+    getUserList(0, 10, 'created', 'desc');
+  })
+
+</script>
 
 <style scoped>
 ::v-deep(.vtl-table .vtl-thead .vtl-thead-th) {

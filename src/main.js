@@ -1,7 +1,14 @@
 import { createApp } from 'vue'
-import App from './App.vue'
+import { createPinia } from 'pinia'
 
+import App from './App.vue'
 import router from './router'
+
+// Import the PocketBase JS library
+import client from './pocketbase';
+
+// Import custom pocketBase type
+import { pocketBaseSymbol } from "./symbols/injectionSymbols"
 
 
 /* import the fontawesome core */
@@ -16,5 +23,9 @@ import { faUserSecret,  faHouseChimney, faList, faUserGroup, faEnvelope, faGear 
 /* add icons to the library */
 library.add(faUserSecret, faHouseChimney, faList, faUserGroup, faEnvelope, faGear)
 
+const app = createApp(App)
 
-createApp(App).use(router).component('font-awesome-icon', FontAwesomeIcon).mount('#app')
+app.use(createPinia())
+app.use(router)
+app.provide(pocketBaseSymbol, client, library)
+app.mount('#app')

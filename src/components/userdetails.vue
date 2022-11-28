@@ -1,82 +1,109 @@
 <template>
-    <div>
-        <div v-if="user">
-            <div>id: {{userId}}</div>
-            <form @submit.prevent="submitUser">
-                <label class="block">
-                    <span>Name: </span>
-                    <input type="text" v-model="user.name">
-                </label>
-                <label class="block">
-                    <span>Email: </span>
-                    <input type="email" v-model="user.email">
-                </label>
-                <button type="submit">
-                    <span v-if="userId == 0">Create</span>
-                    <span v-else> Update</span>
-                </button>
-            </form>
-        </div>
-        <div v-else-if="userNotFound">
-            <div class="warning">not found...</div>
-        </div>
-        <div v-else>
-            <div class="warning">loading...</div>
-        </div>
-    </div>  
+    <div v-if="userFound">
+        <div>id: {{userId}}</div>
+        <form @submit.prevent="submitUser">
+            <label class="block">
+                <span>Name: </span>
+                <input type="text" v-model="name">
+            </label>
+            <label class="block">
+                <span>Email: </span>
+                <input type="email" v-model="email">
+            </label>
+            <button type="submit">
+                <span v-if="userId == 0">Create</span>
+                <span v-else> Update</span>
+            </button>
+        </form>
+    </div>
+    <div v-else-if="loading">
+        loading...
+    </div>
+    <div v-else>
+        not found...
+    </div>
 </template>
 
 
-<script>
-    import PocketBase from 'pocketbase';
+<script setup>
+import { inject, onMounted, ref ,} from 'vue';
+import { pocketBaseSymbol } from '../symbols/injectionSymbols';
+import { useRouter } from 'vue-router';
 
-    
-    const pb = new PocketBase('http://127.0.0.1:8090');
 
-    export default {
-        props: ['id'],
-        data () {return {user: null, userId: null, touched: false, userNotFound: false,}
-        },
-        async mounted () {
-            const userId = this.id
-            this.userId = userId
-            if(userId != 0){
-                try{
-                    const response = await pb.collection('users').getOne(userId, {});
-                    this.user = {name: response.name, email: response.email}
-                }
-                catch(error){
-                    console.log(userId + " userId not found")
-                    this.userNotFound = true
-                    return ;
-                }
-                console.log(userId + " userId found")
-            }
-            else{
-                this.user = {name: "", email: ""}
-            }
-            
-        },
-        methods: {
-            async submitUser(){
-                if(this.userId != 0){
-                    console.log("update")
-                    await pb.collection('users').update(this.userId, this.user);
-                }
-                else{
-                    console.log("create")
-                        const record = await pb.collection('users').create(this.user); 
-                        console.log(record.id)
-                        this.userId = record.id
-                        this.$router.push({ path: `/user/${this.userId}` })
+const $pb = inject(pocketBaseSymbol);
 
-                }
-            }
-        },
+const props = defineProps({
+  id: String
+})
+
+const userId = ref(props.id);
+
+const router = useRouter();
+const emit = defineEmits(["userUpdated"]);
+
+const loading = ref(true)
+const userFound = ref(false)
+
+const name = ref("");
+const email = ref("");
+
+
+const init = async () => {
+    if(userId.value != 0){
+        loadUser()
     }
+    else{
+        createUser()
+    }
+}
+
+function createUser(){
+    name.value = ""
+    email.value = ""
+    loading.value = false
+    userFound.value = true
+}
+
+const loadUser = async () => {
+    try{
+        const response = await $pb.collection('users').getOne(userId.value, {});
+        if(response){
+            console.log(userId.value + " userId found")
+            name.value = response.name;
+            email.value = response.email
+            loading.value = false
+            userFound.value = true
+        }
+    } catch(error){
+        console.log(userId.value + " userId not found")
+        loading.value = false
+    } 
+}
+
+
+async function submitUser(){
+    const submitUser = {
+        name: name.value,
+        email: email.value,
+    }
+    if(userId.value != 0){
+        console.log("update")
+        await $pb.collection('users').update(userId.value, submitUser);
+    }
+    else{
+        console.log("create")
+        const record = await $pb.collection('users').create(submitUser); 
+        userId.value = record.id
+        router.push("/user/"+userId.value)
+    }
+}
 
 
 
+onMounted(() => {
+    init();
+})
 </script>
 
 
