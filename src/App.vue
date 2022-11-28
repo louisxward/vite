@@ -57,4 +57,15 @@ button {
 		color: white;
 	}
 }
+
+.actionBtn {
+  background-color: var(--primary);
+  color: black;
+  padding: 0.75rem 1rem;
+  font-weight: bold;
+}
+.actionBtn:hover {
+  background-color: var(--black);
+  color: var(--white);
+}
 </style>

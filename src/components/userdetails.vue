@@ -8,7 +8,16 @@
             </label>
             <label class="block">
                 <span>Email: </span>
-                <input type="email" v-model="email">
+                <input type="email" v-model="email" v-if="userId == 0">
+                <span v-else-if="userId != 0">{{email}}</span>
+            </label>
+            <label class="block"  v-if="userId == 0">
+                <span>Password: </span>
+                <input type="text" v-model="password">
+            </label>
+            <label class="block"  v-if="userId == 0">
+                <span>Password Confirm: </span>
+                <input type="text" v-model="passwordConfirm">
             </label>
             <button type="submit">
                 <span v-if="userId == 0">Create</span>
@@ -47,6 +56,8 @@ const userFound = ref(false)
 
 const name = ref("");
 const email = ref("");
+const password = ref("");
+const passwordConfirm  = ref("");
 
 
 const init = async () => {
@@ -61,6 +72,8 @@ const init = async () => {
 function createUser(){
     name.value = ""
     email.value = ""
+    password.value = ""
+    passwordConfirm.value = ""
     loading.value = false
     userFound.value = true
 }
@@ -84,8 +97,11 @@ const loadUser = async () => {
 
 async function submitUser(){
     const submitUser = {
-        name: name.value,
-        email: email.value,
+        "email": email.value,
+        "emailVisibility": true,
+        "password": password.value,
+        "passwordConfirm": passwordConfirm.value,
+        "name": name.value,
     }
     if(userId.value != 0){
         console.log("update")

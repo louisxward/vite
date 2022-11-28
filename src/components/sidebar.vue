@@ -9,8 +9,8 @@
     </div>
 
     <h3>Menu</h3>
-    <div class="menu">
-        <router-link class="button" to="/">
+    <div class="menu" v-if="$pb.authStore.isValid">
+        <router-link class="button" to="/" >
             <span class="material-icons">home</span>
             <span class="text">Home</span>
         </router-link>
@@ -30,8 +30,10 @@
 
     <div class="flex"></div>
 
+    {{userStore.userId != ''}}
+
     <div class="menu">
-        <router-link class="button" to="/settings">
+        <router-link class="button" to="/login">
             <span class="material-icons">settings</span>
             <span class="text">Settings</span>
         </router-link>
@@ -42,7 +44,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
+import { useUserStore } from '../stores/user';
+import { pocketBaseSymbol } from '../symbols/injectionSymbols';
+
+const $pb = inject(pocketBaseSymbol);
+
+const userStore = useUserStore()
 
 const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
 
