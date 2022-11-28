@@ -1,0 +1,244 @@
+<template>
+  <div>
+    <div class="tableContainer">
+        <table-lite
+          :is-loading="table.isLoading"
+          :columns="table.columns"
+          :rows="table.rows"
+          :total="table.totalRecordCount"
+          :sortable="table.sortable"
+          :messages="table.messages"
+          @do-search="doSearch"
+          @is-finished="tableLoadingFinish"
+        ></table-lite>
+    </div>
+    <div class="buttonContainer">
+      <button class="actionBtn view-btn" @click="createUser">Create User</button>
+      <button class="actionBtn" @click="doDefaultSearch">Refresh</button>
+    </div>
+  </div>
+</template>
+  
+  <script>
+  import { defineComponent, reactive } from "vue";
+  import TableLite from "../../node_modules/vue3-table-lite/src/components/TableLite.vue";
+
+  import router from "../router"; 
+
+  import PocketBase from 'pocketbase';
+
+  const pb = new PocketBase('http://127.0.0.1:8090');
+
+  export default defineComponent({
+    name: "App",
+    components: { TableLite },
+    
+    setup() {
+      // Table config
+      const table = reactive({
+        isLoading: false,
+        columns: [
+          {
+            label: "Created",
+            field: "created",
+            width: "3%",
+            sortable: true,
+          },
+          {
+            label: "Name",
+            field: "name",
+            width: "10%",
+            sortable: true,
+          },
+          {
+            label: "Email",
+            field: "email",
+            width: "15%",
+            sortable: true,
+          },
+          {
+            label: "Actions",
+            field: "Update",
+            width: "10%",
+            display: function (row) {
+              return (
+              '<button type="button" data-id="' +
+              row.id +
+              '" class="is-rows-el view-btn actionBtn">View</button>'
+              + '<button type="button" data-id="' +
+              row.id +
+              '" class="is-rows-el actionBtn delete-btn">Delete</button>'
+            );
+            },
+          },
+          
+          
+        ],
+        rows: [],
+        totalRecordCount: 0,
+        sortable: {
+          order: "created",
+          sort: "desc",
+        },
+      });
+
+
+      
+
+      /**
+       * Search Event
+       */
+      const doSearch = (offset, limit, order, sort) => {
+        const sort2 = sortFlipper(sort) + order
+        console.log(offset + " " + limit + " " + order + " " + sort2)
+        table.isLoading = true;
+        setTimeout(async () => {
+          table.isReSearch = offset == undefined ? true : false;
+          console.log(offset + " " + limit + " " + order + " " + sort2)
+          const resultList = await pb.collection('users').getList(offset, limit, {sort: sort2});
+          table.rows = resultList.items
+          table.totalRecordCount = resultList.totalItems;
+          table.sortable.order = order;
+          table.sortable.sort = sort;
+        }, 600);
+      };
+
+      const tableLoadingFinish = (elements) => {
+        table.isLoading = false;
+        Array.prototype.forEach.call(elements, function (element) {
+          if (element.classList.contains("view-btn")) {
+            element.addEventListener("click", function (event) {
+              event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
+              const id = this.dataset.id
+              router.push("/user/"+id)
+            });
+          }
+          if (element.classList.contains("delete-btn")) {
+            element.addEventListener("click", function (event) {
+              event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
+              const id = this.dataset.id
+              deleteUser(id)
+              doDefaultSearch()
+            });
+          }
+        });
+      };
+
+
+      async function deleteUser(id){
+        await pb.collection('users').delete(id);
+      }
+
+      function createUser(){
+        router.push("/user/0")
+      }
+
+      function sortFlipper(sort){
+        if (sort == "asc"){
+          return "+"
+        }
+        else if (sort == "desc"){
+          return "-"
+        }
+        return ""
+      }
+
+
+      // First get data
+      function doDefaultSearch (){
+        doSearch(0, 10, 'created', 'desc');
+      }
+
+      doDefaultSearch();
+
+      return {
+        table,
+        doSearch,
+        doDefaultSearch,
+        tableLoadingFinish,
+        createUser,
+      };
+    },
+  });
+  </script>
+
+<style scoped>
+::v-deep(.vtl-table .vtl-thead .vtl-thead-th) {
+  color: black;
+  background-color: var(--primary);
+  border: none;
+}
+::v-deep(.vtl-table td),
+::v-deep(.vtl-table tr) {
+  border: none;
+  background-color: var(--black);
+  color: white;
+}
+::v-deep(.vtl-paging-info) {
+  color: rgb(172, 0, 0);
+}
+::v-deep(.vtl-paging-count-label),
+::v-deep(.vtl-paging-page-label) {
+  color: rgb(172, 0, 0);
+}
+::v-deep(.vtl-paging-pagination-page-link) {
+  border: none;
+}
+::v-deep(.vtl-paging) {
+  padding: 0 0.75rem;
+  background-color: var(--primary);
+}
+::v-deep(.vtl-card-body) {
+  background-color: var(--primary);
+}
+::v-deep(.vtl-paging-info) {
+  color: var(--black);
+}
+::v-deep(.vtl-paging-count-label) {
+  color: var(--black);
+}
+::v-deep(.vtl-paging-page-label) {
+  color: var(--black);
+  margin-left: 1rem;
+}
+
+
+::v-deep(.actionBtn) {
+  background-color: var(--primary);
+  color: black;
+  padding: 0.75rem 1rem;
+  font-weight: bold;
+}
+::v-deep(.actionBtn:hover) {
+  background-color: var(--black);
+  color: var(--white);
+}
+.actionBtn {
+  background-color: var(--primary);
+  color: black;
+  padding: 0.75rem 1rem;
+  font-weight: bold;
+}
+.actionBtn:hover {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+
+::v-deep(.page-link) {
+ background-color: var(--primary);
+ color: black;
+ padding-top: 0px;
+ padding-bottom: 1.20rem;
+}
+::v-deep(.page-item.disabled .page-link){
+  background-color: var(--primary);
+  color: black;
+  padding-top: 0px;
+  padding-bottom: 1.20rem;
+}
+::v-deep(.vtl-empty-msg ){
+  color: black;
+  padding-bottom: 1.20rem;
+}
+</style>
