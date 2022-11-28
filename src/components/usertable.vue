@@ -24,11 +24,13 @@
   import { pocketBaseSymbol } from '../symbols/injectionSymbols';
   import { inject, onMounted, ref, reactive } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useUserStore } from '../stores/user';
 
+  const userStore = useUserStore()
   const router = useRouter();
   const $pb = inject(pocketBaseSymbol);
   const users = ref({});
-  
+
   const table = reactive({
     isLoading: true,
     columns: [
@@ -117,6 +119,10 @@
 
   const deleteUser = async (id) => {
     console.log("deleteUser()")
+    if(id == userStore.userId){
+      console.log("cannot delete current user")
+      return
+    }
     try {
       await $pb.collection('users').delete(id);
       getUserList(0, 10, 'created', 'desc')
