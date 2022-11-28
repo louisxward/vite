@@ -81,6 +81,7 @@
     try {
         const result = await $pb.collection('users').getList(offset, limit, {sort: sort2});
         if (result) {
+            console.log(result)
             table.isReSearch = offset == undefined ? true : false;
             table.rows = result.items
             table.totalRecordCount = result.totalItems;
