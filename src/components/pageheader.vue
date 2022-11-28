@@ -13,6 +13,6 @@ export default {
 <style lang="scss">
 .header {
     border-bottom: 1px solid var(--primary);
-    padding: 0.4rem;
+    padding: 0.4rem 1rem;
 }
 </style>

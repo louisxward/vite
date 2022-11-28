@@ -81,7 +81,7 @@
   const getItemList = async (offset, limit, order, sort) => {
     table.isLoading = true;
     const sort2 = sortFlipper(sort) + order
-    console.log("itemList:" + offset + " " + limit + " " +  sort2)
+    console.log("itemList: " + offset + " " + limit + " " +  sort2)
     try {
         const result = await $pb.collection('items').getList(offset, limit, {sort: sort2, expand: '',});
         if (result) {

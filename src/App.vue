@@ -58,6 +58,10 @@ button {
 	}
 }
 
+.content{
+	padding: 1rem;
+}
+
 .actionBtn {
   background-color: var(--primary);
   color: black;
@@ -70,7 +74,7 @@ button {
 }
 
 .formContainer label{
-	margin: 0 1rem;
+	margin: 0px 1rem 0 0;
 }
 
 </style>

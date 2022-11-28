@@ -5,6 +5,10 @@
             <br/>
             name: {{userStore.name}}
         </div>
+        <div v-if="userStore.pp != ''">
+            {{userStore.pp}}
+            <img  :src="userStore.pp"/>
+        </div>
         <div class="formContainer">
             <form @submit.prevent="authUser" v-if="!$pb.authStore.isValid">
                 <label class="block">
@@ -53,6 +57,11 @@ const authUser = async () => {
             userStore.userId = response.record.id;
             userStore.username = response.record.username;
             userStore.name = response.record.name
+            if(response.record.avatar != ""){
+                const url = $pb.getFileUrl(response.record, response.record.avatar, {})
+                userStore.pp = url
+                console.log(userStore.pp)
+            }
             email.value = ''
             password.value = ''
         }   
@@ -60,6 +69,7 @@ const authUser = async () => {
         console.log("erorr")
     }
 };
+
 
 const logoutUser = () => {
     console.log("logout " + userStore.userId)

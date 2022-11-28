@@ -56,12 +56,13 @@
         field: "Update",
         width: "10%",
         display: function (row) {
-          console.log("----------")
-          console.log("'"+row.id+"'")
-          console.log("'"+userStore.userId+"'")
-          console.log((row.userId) == (userStore.userId))
-          const hide = (row.userId == userStore.userId ? 'style="display: none"' : '');
-          console.log(hide)
+          // console.log("----------")
+          // console.log("'"+row.id+"'")
+          // console.log("'"+userStore.userId+"'")
+          // console.log((row.userId) == (userStore.userId))
+          //const hide = (row.userId == userStore.userId ? 'style="display: none"' : '');
+          const hide = ""
+          // console.log(hide)
           return (
           '<button type="button" data-id="' 
           + row.id 

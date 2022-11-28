@@ -1,7 +1,9 @@
 <template>
     <main class="login-page">
         <pageheader header="Login"></pageheader>
-        <login/>
+        <div class="content">
+            <login/>
+        </div>
     </main>
 </template>
 
