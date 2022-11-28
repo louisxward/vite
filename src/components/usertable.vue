@@ -29,7 +29,6 @@
   const userStore = useUserStore()
   const router = useRouter();
   const $pb = inject(pocketBaseSymbol);
-  const users = ref({});
 
   const table = reactive({
     isLoading: true,
@@ -57,13 +56,21 @@
         field: "Update",
         width: "10%",
         display: function (row) {
+          console.log("----------")
+          console.log("'"+row.id+"'")
+          console.log("'"+userStore.userId+"'")
+          console.log((row.userId) == (userStore.userId))
+          const hide = (row.userId == userStore.userId ? 'style="display: none"' : '');
+          console.log(hide)
           return (
-          '<button type="button" data-id="' +
-          row.id +
-          '" class="is-rows-el view-btn actionBtn">View</button>'
-          + '<button type="button" data-id="' +
-          row.id +
-          '" class="is-rows-el actionBtn delete-btn">Delete</button>'
+          '<button type="button" data-id="' 
+          + row.id 
+          + '"class="is-rows-el view-btn actionBtn">View</button>'
+          + '<button type="button" data-id="' 
+          + row.id 
+          + '" class="is-rows-el actionBtn delete-btn"'
+          + hide
+          + '>Delete</button>'
         );
         },
       },

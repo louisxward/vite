@@ -26,9 +26,9 @@
   import { useUserStore } from '../stores/user';
 
   const userStore = useUserStore()
-  const router = useRouter();
+
   const $pb = inject(pocketBaseSymbol);
-  const users = ref({});
+
 
   const table = reactive({
     isLoading: true,
@@ -36,7 +36,7 @@
     {
         label: "Code",
         field: "code",
-        width: "10%",
+        width: "3%",
         sortable: true,
       },
       {
@@ -48,7 +48,7 @@
       {
         label: "Price",
         field: "price",
-        width: "10%",
+        width: "15%",
         sortable: true,
       },
       {
@@ -56,14 +56,17 @@
         field: "Update",
         width: "10%",
         display: function (row) {
+          const hide = row.userId != '' ? 'style="display: none"' : ''
           return (
-          '<button type="button" data-id="' +
-          row.id +
-          '" class="is-rows-el view-btn actionBtn">View</button>'
-          + '<button type="button" data-id="' +
-          row.id +
-          '" class="is-rows-el actionBtn delete-btn">Delete</button>'
-        );
+          '<button type="button" data-id="' 
+          + row.id 
+          + '"class="is-rows-el view-btn actionBtn">View</button>'
+          + '<button type="button" data-id="' 
+          + row.id 
+          +'"class="is-rows-el buy-btn actionBtn "'
+          + hide
+          +'>Buy</button>'
+          );
         },
       },
     ],
@@ -80,7 +83,7 @@
     const sort2 = sortFlipper(sort) + order
     console.log("itemList:" + offset + " " + limit + " " +  sort2)
     try {
-        const result = await $pb.collection('items').getList(offset, limit, {sort: sort2});
+        const result = await $pb.collection('items').getList(offset, limit, {sort: sort2, expand: '',});
         if (result) {
             table.isReSearch = offset == undefined ? true : false;
             table.rows = result.items
@@ -98,16 +101,12 @@
   const tableLoadingFinish = (elements) => {
     table.isLoading = false;
     Array.prototype.forEach.call(elements, function (element) {
-      if (element.classList.contains("view-btn")) {
+      if (element.classList.contains("buy-btn")) {
         element.addEventListener("click", function (event) {
           event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
           const id = this.dataset.id
-        });
-      }
-      if (element.classList.contains("delete-btn")) {
-        element.addEventListener("click", function (event) {
-          event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
-          const id = this.dataset.id
+          const currentUserId = this.dataset.userid
+          buyItem(id)
         });
       }
     });
@@ -122,6 +121,18 @@
     }
     return ""
   }
+
+
+  const buyItem = async (itemId) => {
+    console.log("buyItem()")
+    try {
+        const result = await $pb.collection('items').update(itemId, {userId: userStore.userId});
+        getItemList(0, 10, 'created', 'desc')
+    } catch (error){
+      console.log(error)
+    }
+  }
+
 
   onMounted(() => {
     getItemList(0, 10, 'created', 'desc');
