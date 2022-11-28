@@ -1,29 +1,29 @@
 <template>
     <div v-if="userFound">
-        <div>id: {{userId}}</div>
-        <form @submit.prevent="submitUser">
-            <label class="block">
-                <span>Name: </span>
-                <input type="text" v-model="name">
-            </label>
-            <label class="block">
-                <span>Email: </span>
-                <input type="email" v-model="email" v-if="userId == 0">
-                <span v-else-if="userId != 0">{{email}}</span>
-            </label>
-            <label class="block"  v-if="userId == 0">
-                <span>Password: </span>
-                <input type="text" v-model="password">
-            </label>
-            <label class="block"  v-if="userId == 0">
-                <span>Password Confirm: </span>
-                <input type="text" v-model="passwordConfirm">
-            </label>
-            <button type="submit">
-                <span v-if="userId == 0">Create</span>
-                <span v-else> Update</span>
-            </button>
-        </form>
+        <div class="info">
+            id: {{userId}}
+        </div>
+        <div class="formContainer">
+            <form @submit.prevent="submitUser">
+                <label class="block">
+                    <span>Name: </span>
+                    <input type="text" v-model="name">
+                </label>
+                <label class="block">
+                    <span>Email: </span>
+                    <input type="email" v-model="email" v-if="userId == 0">
+                    <span v-else-if="userId != 0">{{email}}</span>
+                </label>
+                <label class="block"  v-if="userId == 0">
+                    <span>Password: </span>
+                    <input type="text" v-model="password">
+                </label>
+                <button class="actionBtn" type="submit">
+                    <span v-if="userId == 0">Create</span>
+                    <span v-else> Update</span>
+                </button>
+            </form>
+        </div>
     </div>
     <div v-else-if="loading">
         loading...
@@ -57,7 +57,6 @@ const userFound = ref(false)
 const name = ref("");
 const email = ref("");
 const password = ref("");
-const passwordConfirm  = ref("");
 
 
 const init = async () => {
@@ -73,7 +72,6 @@ function createUser(){
     name.value = ""
     email.value = ""
     password.value = ""
-    passwordConfirm.value = ""
     loading.value = false
     userFound.value = true
 }
@@ -100,7 +98,7 @@ async function submitUser(){
         "email": email.value,
         "emailVisibility": true,
         "password": password.value,
-        "passwordConfirm": passwordConfirm.value,
+        "passwordConfirm": password.value,
         "name": name.value,
     }
     if(userId.value != 0){

@@ -8,19 +8,18 @@
           :total="table.totalRecordCount"
           :sortable="table.sortable"
           :messages="table.messages"
-          @do-search="getUserList"
+          @do-search="getItemList"
           @is-finished="tableLoadingFinish"
         ></table-lite>
     </div>
     <div class="buttonContainer">
-      <button class="actionBtn view-btn" @click="createUser">Create User</button>
-      <button class="actionBtn" @click="getUserList(0, 10, 'created', 'desc');">Refresh</button>
+      <button class="actionBtn" @click="getItemList(0, 10, 'created', 'desc');">Refresh</button>
     </div>
   </div>
 </template>
   
 <script setup>
-  import TableLite from "../../node_modules/vue3-table-lite/src/components/TableLite.vue";
+  import TableLite from "vue3-table-lite/src/components/TableLite.vue";
   import { pocketBaseSymbol } from '../symbols/injectionSymbols';
   import { inject, onMounted, ref, reactive } from 'vue';
   import { useRouter } from 'vue-router';
@@ -34,10 +33,10 @@
   const table = reactive({
     isLoading: true,
     columns: [
-      {
-        label: "Created",
-        field: "created",
-        width: "3%",
+    {
+        label: "Code",
+        field: "code",
+        width: "10%",
         sortable: true,
       },
       {
@@ -47,9 +46,9 @@
         sortable: true,
       },
       {
-        label: "Email",
-        field: "email",
-        width: "15%",
+        label: "Price",
+        field: "price",
+        width: "10%",
         sortable: true,
       },
       {
@@ -76,12 +75,12 @@
     },
   });
 
-  const getUserList = async (offset, limit, order, sort) => {
+  const getItemList = async (offset, limit, order, sort) => {
     table.isLoading = true;
     const sort2 = sortFlipper(sort) + order
-    console.log("userList: " + offset + " " + limit + " " +  sort2)
+    console.log("itemList:" + offset + " " + limit + " " +  sort2)
     try {
-        const result = await $pb.collection('users').getList(offset, limit, {sort: sort2});
+        const result = await $pb.collection('items').getList(offset, limit, {sort: sort2});
         if (result) {
             table.isReSearch = offset == undefined ? true : false;
             table.rows = result.items
@@ -103,39 +102,16 @@
         element.addEventListener("click", function (event) {
           event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
           const id = this.dataset.id
-          router.push("/user/"+id)
         });
       }
       if (element.classList.contains("delete-btn")) {
         element.addEventListener("click", function (event) {
           event.stopPropagation(); // prevents further propagation of the current event in the capturing and bubbling phases.
           const id = this.dataset.id
-          deleteUser(id);
         });
       }
     });
   };
-
-
-  const deleteUser = async (id) => {
-    console.log("deleteUser()")
-    if(id == userStore.userId){
-      console.log("cannot delete current user")
-      return
-    }
-    try {
-      await $pb.collection('users').delete(id);
-      getUserList(0, 10, 'created', 'desc')
-    }
-    catch(error){
-      console.log("error");
-    }
-  }
-
-  function createUser(){
-    console.log("createUser()")
-    router.push("/user/0")
-  }
 
   function sortFlipper(sort){
     if (sort == "asc"){
@@ -148,10 +124,19 @@
   }
 
   onMounted(() => {
-    getUserList(0, 10, 'created', 'desc');
+    getItemList(0, 10, 'created', 'desc');
   })
 
 </script>
+
+
+
+
+
+
+
+
+
 
 <style scoped>
 ::v-deep(.vtl-table .vtl-thead .vtl-thead-th) {

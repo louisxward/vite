@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory} from 'vue-router'
 import Home from '../views/Home.vue'
 import UserList from '../views/UserList.vue'
+import ItemList from '../views/ItemList.vue'
 import User from '../views/User.vue'
 import Login from '../views/Login.vue'
 import NotFound from '../views/404.vue'
@@ -16,12 +17,14 @@ const router = createRouter({
         {
             path: '/',
             component: Home,
-            meta: { requiresAuth: true },
         },
         {
             path: '/about',
             component: () => import('../views/About.vue'),
-            meta: { requiresAuth: true },
+        },
+        {
+            path: '/contact',
+            component: () => import('../views/Contact.vue'),
         },
         {
             path: '/userList',
@@ -35,8 +38,8 @@ const router = createRouter({
             meta: { requiresAuth: true },
         },
         {
-            path: '/contact',
-            component: () => import('../views/Contact.vue'),
+            path: '/itemList',
+            component: ItemList,
             meta: { requiresAuth: true },
         },
         {

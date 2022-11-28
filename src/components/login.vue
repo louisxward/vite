@@ -1,22 +1,28 @@
 <template>
     <div>
-        id: {{userStore.userId}}
-        <form @submit.prevent="authUser" v-if="!$pb.authStore.isValid">
-            <label class="block">
-                <span>Email: </span>
-                <input type="text" v-model="email">
-            </label>
-            <label class="block">
-                <span>Password: </span>
-                <input type="text" v-model="password">
-            </label>
-            <button type="submit">
-                <span>Login</span>
-            </button>
-        </form>
+        <div class="info" v-if="$pb.authStore.isValid">
+            id: {{userStore.userId}}
+            <br/>
+            name: {{userStore.name}}
+        </div>
+        <div class="formContainer">
+            <form @submit.prevent="authUser" v-if="!$pb.authStore.isValid">
+                <label class="block">
+                    <span>Email: </span>
+                    <input type="text" v-model="email">
+                </label>
+                <label class="block">
+                    <span>Password: </span>
+                    <input type="password" v-model="password">
+                </label>
+                <button class="actionBtn" type="submit">
+                    <span>Login</span>
+                </button>
+            </form>
+        </div>  
         <div class="buttonContainer" style="margin-top: 2rem;">
-            <button class="actionBtn view-btn" v-if="!$pb.authStore.isValid" @click="authUserDefault">Login Default</button>
-            <button class="actionBtn view-btn" v-if="$pb.authStore.isValid" @click="logoutUser">Log Out</button>
+            <button class="actionBtn" v-if="!$pb.authStore.isValid" @click="authUserDefault">Login Default</button>
+            <button class="actionBtn" v-if="$pb.authStore.isValid" @click="logoutUser">Log Out</button>
         </div>
     </div>
 </template>
@@ -42,11 +48,11 @@ function authUserDefault(){
 const authUser = async () => {
     try {
         const response = await $pb.collection('users').authWithPassword(email.value, password.value);
-
         if(response){
-            console.log(response)
+            console.log("login " + response.record.id)
             userStore.userId = response.record.id;
             userStore.username = response.record.username;
+            userStore.name = response.record.name
             email.value = ''
             password.value = ''
         }   
@@ -56,6 +62,7 @@ const authUser = async () => {
 };
 
 const logoutUser = () => {
+    console.log("logout " + userStore.userId)
     userStore.clear();
     $pb.authStore.clear();
 }

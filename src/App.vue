@@ -68,4 +68,9 @@ button {
   background-color: var(--black);
   color: var(--white);
 }
+
+.formContainer label{
+	margin: 0 1rem;
+}
+
 </style>

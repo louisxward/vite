@@ -8,24 +8,36 @@
         </button>
     </div>
 
-    <h3>Menu</h3>
-    <div class="menu" v-if="$pb.authStore.isValid">
-        <router-link class="button" to="/" >
-            <span class="material-icons">home</span>
-            <span class="text">Home</span>
-        </router-link>
-        <router-link class="button" to="/about">
-            <span class="material-icons">list</span>
-            <span class="text">About</span>
-        </router-link>
-        <router-link class="button" to="/userList">
-            <span class="material-icons">group</span>
-            <span class="text">Team</span>
-        </router-link>
-        <router-link class="button" to="/contact">
-            <span class="material-icons">email</span>
-            <span class="text">Contact</span>
-        </router-link>
+    <div>
+        <h3>Menu</h3>
+        <div class="menu">
+            <router-link class="button" to="/" >
+                <span class="material-icons">home</span>
+                <span class="text">Home</span>
+            </router-link>
+            <router-link class="button" to="/about">
+                <span class="material-icons">list</span>
+                <span class="text">About</span>
+            </router-link>
+            <router-link class="button" to="/contact">
+                <span class="material-icons">email</span>
+                <span class="text">Contact</span>
+            </router-link>
+        </div>
+    </div>
+    
+    <div v-if="$pb.authStore.isValid">
+        <h3>Admin</h3>
+        <div class="menu">
+            <router-link class="button" to="/userList">
+                <span class="material-icons">group</span>
+                <span class="text">Users</span>
+            </router-link>
+            <router-link class="button" to="/itemList">
+                <span class="material-icons">inventory_2</span>
+                <span class="text">Items</span>
+            </router-link>
+        </div>
     </div>
 
     <div class="flex"></div>
@@ -110,7 +122,6 @@ aside {
             &:hover {
                 .material-icons{
                     color: var(--primary);
-                    transform: translateX(0.5rem);
                 }
             }
         }
