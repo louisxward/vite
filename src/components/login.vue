@@ -5,9 +5,8 @@
             <br/>
             name: {{userStore.name}}
         </div>
-        <div v-if="userStore.pp != ''">
-            {{userStore.pp}}
-            <img  :src="userStore.pp"/>
+        <div class="loginProfilePicutre" v-if="userStore.pp != ''">
+            <img :src="userStore.pp"/>
         </div>
         <div class="formContainer">
             <form @submit.prevent="authUser" v-if="!$pb.authStore.isValid">
@@ -30,6 +29,19 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+.info{
+    display: inline-block;
+}
+.loginProfilePicutre{
+	display: inline-block;
+    float: right;
+}
+.loginProfilePicutre img{
+	height: 100px;
+}
+</style>
 
 <script setup>
 import { ref, inject } from 'vue';
