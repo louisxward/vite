@@ -42,9 +42,13 @@
 
     <div class="flex"></div>
 
-    {{userStore.userId != ''}}
-
     <div class="menu">
+        <div class="button">
+            <div class="profile">
+                <img :src="userStore.pp"/> 
+            </div>
+            <span class="text">Settings</span>
+        </div>
         <router-link class="button" to="/login">
             <span class="material-icons">settings</span>
             <span class="text">Settings</span>
@@ -80,18 +84,13 @@ aside {
     min-height: 100vh;
     overflow: hidden;
     padding: 1rem;
-
     background-color: var(--dark);
     color: var(--light);
-
     border-right: 1px solid var(--primary);
-    
     transition: 0.2s ease-out;
-
     .flex {
         flex: 1 1 0;
     }
-
     .logo {
         margin-bottom: 1rem;
 
@@ -100,7 +99,6 @@ aside {
         }
 
     }
-
     .menu-toggle-wrap {
         display: flex;
         justify-content: flex-end;
@@ -126,22 +124,18 @@ aside {
             }
         }
     }
-
     h3, .button .text {
         opacity: 0;
         transition: 0.3s ease-out;
     }
-
     h3 {
         color: var(--grey);
         font-size: 0.875rem;
         margin-bottom: 0.5rem;
         text-transform: uppercase;
     }
-
     .menu {
         margin: 0 -1rem;
-
         .button {
             display: flex;
             align-items: center;
@@ -149,19 +143,19 @@ aside {
 
             padding: 0.5rem 1rem;
             transition: 0.2s ease-out;
-
-            
             .material-icons {
                 font-size: 2rem;
                 color: var(--light);
                 transition: 0.2s ease-out;
             }
-
+            .profile {
+                height: 10px;
+                transition: 0.2s ease-out;
+            }
             .text{
                 color: var(--light);
                 transition: 0.2s ease-out;
             }
-
             &:hover, &.router-link-exact-active {
                 background-color: var(--dark-alt);
 
@@ -169,14 +163,12 @@ aside {
                     color: var(--primary);
                 }
             }
-
             &.router-link-exact-active {
                 border-right: 2px solid var(--primary);
             }
 
         }
     }
-
     &.is-expanded {
         width: var(--sidebar-width);
         .menu-toggle-wrap {
@@ -187,15 +179,12 @@ aside {
         h3, .button .text {
             opacity: 1;
         }
-
         .button{
             .material-icons {
                 margin-right: 1rem;
             }
         }
-
     }
-
     @media (max-width: 768px) {
         position: fixed;
         z-index: 99;

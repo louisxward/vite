@@ -40,6 +40,9 @@
 }
 .loginProfilePicutre img{
 	height: 100px;
+    width: 100px;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 </style>
 
